@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}SecureCrypt - Encrypt & Decrypt Text{% endblock %}
+
+{% block content %}
+<div class="app-header">
+    <h1><i class="fas fa-lock"></i> Secure Text Encryption</h1>
+    <p class="subtitle">Military-grade AES-GCM encryption in your browser</p>
+</div>
+
+<div class="grid-container">
+    <!-- Left Panel: Key Management -->
+    <div class="card key-card">
+        <div class="card-header">
+            <h2><i class="fas fa-key"></i> Key Management</h2>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="key-input">
+                    <i class="fas fa-key"></i> Encryption Key
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltip-text">32-byte Base64 URL-safe key for AES-GCM encryption</span>
+                    </span>
+                </label>
+                <div class="input-group">
+                    <textarea id="key-input" class="form-control key-textarea" 
+                              placeholder="Click 'Generate Key' or paste your key here..." 
+                              rows="4"></textarea>
+                    <div class="input-actions">
+                        <button id="generate-key" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> Generate Key
+                        </button>
+                        <button id="copy-key" class="btn btn-secondary">
+                            <i class="far fa-copy"></i> Copy
+                        </button>
+                        <button id="clear-key" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <div class="form-group">
+                <label for="password-input">
+                    <i class="fas fa-user-lock"></i> Generate from Password
+                </label>
+                <div class="input-group">
+                    <input type="password" id="password-input" class="form-control" 
+                           placeholder="Enter a strong password...">
+                    <button id="generate-from-password" class="btn btn-secondary">
+                        <i class="fas fa-magic"></i> Derive Key
+                    </button>
+                </div>
+                <div class="form-hint">
+                    <i class="fas fa-lightbulb"></i> Uses PBKDF2 with 310,000 iterations
+                </div>
+            </div>
+
+            <div class="key-info">
+                <h3><i class="fas fa-shield-alt"></i> Security Notes</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Uses AES-GCM (256-bit)</li>
+                    <li><i class="fas fa-check-circle"></i> Authenticated encryption</li>
+                    <li><i class="fas fa-check-circle"></i> Secure random generation</li>
+                    <li><i class="fas fa-exclamation-triangle"></i> Save your key securely!</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Middle Panel: Encryption -->
+    <div class="card encrypt-card">
+        <div class="card-header">
+            <h2><i class="fas fa-lock"></i> Encryption</h2>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="plaintext-input">
+                    <i class="fas fa-pencil-alt"></i> Plain Text
+                </label>
+                <textarea id="plaintext-input" class="form-control" 
+                          placeholder="Enter text to encrypt..." 
+                          rows="8"></textarea>
+                <div class="text-actions">
+                    <button id="encrypt-btn" class="btn btn-success">
+                        <i class="fas fa-lock"></i> Encrypt Text
+                    </button>
+                    <span class="char-count" id="plaintext-count">0 characters</span>
+                </div>
+            </div>
+
+            <div class="result-box">
+                <label for="encrypted-output">
+                    <i class="fas fa-lock"></i> Encrypted Text
+                </label>
+                <textarea id="encrypted-output" class="form-control result-textarea" 
+                          readonly placeholder="Encrypted text will appear here..." 
+                          rows="8"></textarea>
+                <div class="result-actions">
+                    <button id="copy-encrypted" class="btn btn-secondary">
+                        <i class="far fa-copy"></i> Copy
+                    </button>
+                    <button id="clear-encrypted" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel: Decryption -->
+    <div class="card decrypt-card">
+        <div class="card-header">
+            <h2><i class="fas fa-unlock"></i> Decryption</h2>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="encrypted-input">
+                    <i class="fas fa-lock"></i> Encrypted Text
+                </label>
+                <textarea id="encrypted-input" class="form-control" 
+                          placeholder="Enter encrypted text to decrypt..." 
+                          rows="8"></textarea>
+                <div class="text-actions">
+                    <button id="decrypt-btn" class="btn btn-warning">
+                        <i class="fas fa-unlock"></i> Decrypt Text
+                    </button>
+                </div>
+            </div>
+
+            <div class="result-box">
+                <label for="decrypted-output">
+                    <i class="fas fa-check-circle"></i> Decrypted Text
+                </label>
+                <textarea id="decrypted-output" class="form-control result-textarea" 
+                          readonly placeholder="Decrypted text will appear here..." 
+                          rows="8"></textarea>
+                <div class="result-actions">
+                    <button id="copy-decrypted" class="btn btn-secondary">
+                        <i class="far fa-copy"></i> Copy
+                    </button>
+                    <button id="clear-decrypted" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <div class="security-alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Security Alert:</strong> Never share your encryption key or decrypted content.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Bar -->
+<div class="quick-actions">
+    <button id="quick-generate" class="quick-btn">
+        <i class="fas fa-bolt"></i> Quick Key
+    </button>
+    <button id="sample-encrypt" class="quick-btn">
+        <i class="fas fa-vial"></i> Test Encryption
+    </button>
+    <button id="clear-all" class="quick-btn danger">
+        <i class="fas fa-broom"></i> Clear All
+    </button>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SecureCrypt - AES-GCM Encryption Tool{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <i class="fas fa-lock"></i>
+                <span>SecureCrypt</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">
+                    <i class="fas fa-key"></i> Encrypt/Decrypt
+                </a>
+                <a href="/about" class="nav-link">
+                    <i class="fas fa-info-circle"></i> About
+                </a>
+                <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>🔐 SecureCrypt v1.0 | AES-GCM Encryption Tool</p>
+            <p class="footer-note">
+                <i class="fas fa-shield-alt"></i> All encryption happens in your browser/server. No data is stored.
+            </p>
+            <div class="footer-links">
+                <a href="https://github.com" target="_blank" class="footer-link">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <span class="separator">•</span>
+                <button id="view-source" class="footer-link">
+                    <i class="fas fa-code"></i> View Source
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast notifications -->
+    <div id="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

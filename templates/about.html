@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}About SecureCrypt{% endblock %}
+
+{% block content %}
+<div class="about-container">
+    <div class="about-header">
+        <h1><i class="fas fa-info-circle"></i> About SecureCrypt</h1>
+        <p class="subtitle">Secure, client-side AES-GCM encryption tool</p>
+    </div>
+
+    <div class="about-content">
+        <div class="about-section">
+            <h2><i class="fas fa-lock"></i> What is SecureCrypt?</h2>
+            <p>
+                SecureCrypt is a web-based encryption tool that provides military-grade AES-GCM 
+                (Advanced Encryption Standard - Galois/Counter Mode) encryption for your text data. 
+                All encryption and decryption operations happen securely on the server using 
+                industry-standard cryptographic libraries.
+            </p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>AES-GCM Encryption</h3>
+                <p>Uses 256-bit AES-GCM for authenticated encryption with integrity checking.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h3>Secure Key Generation</h3>
+                <p>Generates cryptographically secure random keys using your system's CSPRNG.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <h3>Password-Based Keys</h3>
+                <p>Derive encryption keys from passwords using PBKDF2 with 310,000 iterations.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3>Open Source</h3>
+                <p>Built with Flask and Python's cryptography library. Fully transparent code.</p>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2><i class="fas fa-cogs"></i> How It Works</h2>
+            <div class="workflow">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Key Generation</h3>
+                    <p>Generate a secure 32-byte key or derive one from a password using PBKDF2.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Encryption</h3>
+                    <p>Your text is encrypted using AES-GCM with a unique nonce for each operation.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Secure Output</h3>
+                    <p>Encrypted data is base64-encoded for easy sharing and storage.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Decryption</h3>
+                    <p>Only with the correct key can the original text be recovered.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Security Notes</h2>
+            <div class="alert alert-warning">
+                <p><strong>Important:</strong> This tool is for educational and personal use.</p>
+                <ul>
+                    <li>Always save your encryption keys securely</li>
+                    <li>Never share encrypted data with the key</li>
+                    <li>Use strong, randomly generated keys</li>
+                    <li>Consider additional security measures for sensitive data</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2><i class="fas fa-code-branch"></i> Technical Details</h2>
+            <div class="tech-details">
+                <h3>Backend Stack:</h3>
+                <ul>
+                    <li><strong>Framework:</strong> Flask (Python)</li>
+                    <li><strong>Crypto Library:</strong> cryptography (AES-GCM, PBKDF2)</li>
+                    <li><strong>Key Size:</strong> 256 bits (32 bytes)</li>
+                    <li><strong>Nonce Size:</strong> 96 bits (12 bytes)</li>
+                </ul>
+                
+                <h3>Features:</h3>
+                <ul>
+                    <li>Authenticated encryption (confidentiality + integrity)</li>
+                    <li>Base64 URL-safe encoding</li>
+                    <li>Proper error handling</li>
+                    <li>Responsive web interface</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
