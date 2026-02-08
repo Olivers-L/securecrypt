@@ -4,41 +4,28 @@ const plaintextInput = document.getElementById('plaintext-input');
 const encryptedOutput = document.getElementById('encrypted-output');
 const encryptedInput = document.getElementById('encrypted-input');
 const decryptedOutput = document.getElementById('decrypted-output');
-const passwordInput = document.getElementById('password-input');
 
 // Buttons
 const generateKeyBtn = document.getElementById('generate-key');
 const copyKeyBtn = document.getElementById('copy-key');
-const clearKeyBtn = document.getElementById('clear-key');
 const encryptBtn = document.getElementById('encrypt-btn');
 const decryptBtn = document.getElementById('decrypt-btn');
 const copyEncryptedBtn = document.getElementById('copy-encrypted');
-const clearEncryptedBtn = document.getElementById('clear-encrypted');
 const copyDecryptedBtn = document.getElementById('copy-decrypted');
-const clearDecryptedBtn = document.getElementById('clear-decrypted');
-const generateFromPasswordBtn = document.getElementById('generate-from-password');
-const themeToggleBtn = document.getElementById('theme-toggle');
-const viewSourceBtn = document.getElementById('view-source');
-const quickGenerateBtn = document.getElementById('quick-generate');
-const sampleEncryptBtn = document.getElementById('sample-encrypt');
-const clearAllBtn = document.getElementById('clear-all');
 
-// Character counters
+// Character counter
 const plaintextCount = document.getElementById('plaintext-count');
 
 // API Endpoints
 const API = {
     generateKey: '/api/generate-key',
-    generatePassword: '/api/generate-password',
     encrypt: '/api/encrypt',
-    decrypt: '/api/decrypt',
-    deriveKey: '/api/derive-key',
-    health: '/api/health'
+    decrypt: '/api/decrypt'
 };
 
 // Toast System
 class Toast {
-    static show(message, type = 'info', duration = 5000) {
+    static show(message, type = 'info', duration = 3000) {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -65,20 +52,81 @@ class Toast {
 }
 
 // Add slideOut animation
-const style = document.createElement('style');
-style.textContent = `
-@keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
+if (!document.querySelector('#toast-animations')) {
+    const style = document.createElement('style');
+    style.id = 'toast-animations';
+    style.textContent = `
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
     }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
+    `;
+    document.head.appendChild(style);
+}
+
+// FIXED: COPY FUNCTION - Works on all browsers
+function copyToClipboard(text, elementName = 'text') {
+    if (!text || text.trim() === '') {
+        Toast.show(`No ${elementName} to copy`, 'error');
+        return false;
+    }
+    
+    // Method 1: Modern Clipboard API (works in HTTPS/localhost)
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text.trim())
+            .then(() => {
+                Toast.show(`${elementName} copied to clipboard!`, 'success');
+                return true;
+            })
+            .catch(err => {
+                console.log('Modern clipboard failed, trying fallback:', err);
+                return fallbackCopy(text, elementName);
+            });
+    } else {
+        // Method 2: Fallback for HTTP or older browsers
+        return fallbackCopy(text, elementName);
     }
 }
-`;
-document.head.appendChild(style);
+
+// Fallback copy method
+function fallbackCopy(text, elementName) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text.trim();
+    
+    // Make it invisible
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-999999px';
+    textarea.style.top = '-999999px';
+    document.body.appendChild(textarea);
+    
+    // Select and copy
+    textarea.focus();
+    textarea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        if (successful) {
+            Toast.show(`${elementName} copied to clipboard!`, 'success');
+            return true;
+        } else {
+            Toast.show(`Failed to copy ${elementName}`, 'error');
+            return false;
+        }
+    } catch (err) {
+        console.error('Fallback copy failed:', err);
+        document.body.removeChild(textarea);
+        Toast.show(`Could not copy ${elementName}`, 'error');
+        return false;
+    }
+}
 
 // Utility Functions
 async function apiCall(endpoint, method = 'POST', data = null) {
@@ -109,48 +157,18 @@ async function apiCall(endpoint, method = 'POST', data = null) {
     }
 }
 
-function copyToClipboard(text, elementName = 'text') {
-    navigator.clipboard.writeText(text)
-        .then(() => {
-            Toast.show(`${elementName} copied to clipboard!`, 'success');
-        })
-        .catch(err => {
-            console.error('Copy failed:', err);
-            Toast.show('Failed to copy to clipboard', 'error');
-        });
-}
-
 function clearTextarea(textarea) {
-    textarea.value = '';
-    textarea.dispatchEvent(new Event('input'));
+    if (textarea) {
+        textarea.value = '';
+        if (textarea === plaintextInput) {
+            updateCharCount();
+        }
+    }
 }
 
 function updateCharCount() {
     const count = plaintextInput.value.length;
     plaintextCount.textContent = `${count} character${count !== 1 ? 's' : ''}`;
-}
-
-// Theme Management
-function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
-}
-
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
-    
-    Toast.show(`Switched to ${newTheme} theme`, 'info');
-}
-
-function updateThemeIcon(theme) {
-    const icon = themeToggleBtn.querySelector('i');
-    icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
 }
 
 // Event Listeners
@@ -165,16 +183,7 @@ generateKeyBtn.addEventListener('click', async () => {
 });
 
 copyKeyBtn.addEventListener('click', () => {
-    if (keyInput.value.trim()) {
-        copyToClipboard(keyInput.value, 'Key');
-    } else {
-        Toast.show('No key to copy', 'error');
-    }
-});
-
-clearKeyBtn.addEventListener('click', () => {
-    clearTextarea(keyInput);
-    Toast.show('Key cleared', 'info');
+    copyToClipboard(keyInput.value, 'Key');
 });
 
 encryptBtn.addEventListener('click', async () => {
@@ -187,16 +196,22 @@ encryptBtn.addEventListener('click', async () => {
     }
     
     if (!key) {
-        Toast.show('Please generate or enter an encryption key', 'error');
+        Toast.show('Please generate or enter an encryption key first', 'error');
         return;
     }
     
     try {
+        encryptBtn.disabled = true;
+        encryptBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Encrypting...';
+        
         const result = await apiCall(API.encrypt, 'POST', { text, key });
         encryptedOutput.value = result.encrypted;
         Toast.show(result.message, 'success');
     } catch (error) {
         // Error handled by apiCall
+    } finally {
+        encryptBtn.disabled = false;
+        encryptBtn.innerHTML = '<i class="fas fa-lock"></i> Encrypt Text';
     }
 });
 
@@ -215,148 +230,64 @@ decryptBtn.addEventListener('click', async () => {
     }
     
     try {
+        decryptBtn.disabled = true;
+        decryptBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Decrypting...';
+        
         const result = await apiCall(API.decrypt, 'POST', { encrypted, key });
         decryptedOutput.value = result.decrypted;
         Toast.show(result.message, 'success');
     } catch (error) {
         // Error handled by apiCall
+    } finally {
+        decryptBtn.disabled = false;
+        decryptBtn.innerHTML = '<i class="fas fa-unlock"></i> Decrypt Text';
     }
 });
 
 copyEncryptedBtn.addEventListener('click', () => {
-    if (encryptedOutput.value.trim()) {
-        copyToClipboard(encryptedOutput.value, 'Encrypted text');
-    } else {
-        Toast.show('No encrypted text to copy', 'error');
-    }
-});
-
-clearEncryptedBtn.addEventListener('click', () => {
-    clearTextarea(encryptedOutput);
-    Toast.show('Encrypted text cleared', 'info');
+    copyToClipboard(encryptedOutput.value, 'Encrypted text');
 });
 
 copyDecryptedBtn.addEventListener('click', () => {
-    if (decryptedOutput.value.trim()) {
-        copyToClipboard(decryptedOutput.value, 'Decrypted text');
-    } else {
-        Toast.show('No decrypted text to copy', 'error');
-    }
+    copyToClipboard(decryptedOutput.value, 'Decrypted text');
 });
 
-clearDecryptedBtn.addEventListener('click', () => {
-    clearTextarea(decryptedOutput);
-    Toast.show('Decrypted text cleared', 'info');
-});
-
-generateFromPasswordBtn.addEventListener('click', async () => {
-    const password = passwordInput.value.trim();
-    
-    if (!password) {
-        Toast.show('Please enter a password', 'error');
-        return;
-    }
-    
-    if (password.length < 8) {
-        Toast.show('Password should be at least 8 characters', 'warning');
-        return;
-    }
-    
-    try {
-        const result = await apiCall(API.deriveKey, 'POST', { password });
-        keyInput.value = result.derived_key;
-        Toast.show(result.message, 'success');
-    } catch (error) {
-        // Error handled by apiCall
-    }
-});
-
-themeToggleBtn.addEventListener('click', toggleTheme);
-
-viewSourceBtn.addEventListener('click', () => {
-    window.open('https://github.com/yourusername/securecrypt', '_blank');
-});
-
-quickGenerateBtn.addEventListener('click', async () => {
-    try {
-        const result = await apiCall(API.generateKey);
-        keyInput.value = result.key;
-        plaintextInput.value = 'Hello, this is a test message!';
-        plaintextInput.dispatchEvent(new Event('input'));
-        Toast.show('Quick setup complete!', 'success');
-    } catch (error) {
-        // Error handled by apiCall
-    }
-});
-
-sampleEncryptBtn.addEventListener('click', async () => {
-    if (!keyInput.value.trim()) {
-        Toast.show('Please generate a key first', 'error');
-        return;
-    }
-    
-    const sampleText = `This is a sample secret message for testing SecureCrypt.
-
-Features:
-• AES-GCM encryption
-• Secure key generation
-• Web-based interface
-• Open source
-
-Try encrypting your own messages!`;
-    
-    plaintextInput.value = sampleText;
-    plaintextInput.dispatchEvent(new Event('input'));
-    
-    try {
-        const result = await apiCall(API.encrypt, 'POST', { 
-            text: sampleText, 
-            key: keyInput.value 
-        });
-        encryptedOutput.value = result.encrypted;
-        Toast.show('Sample encryption complete!', 'success');
-    } catch (error) {
-        // Error handled by apiCall
-    }
-});
-
-clearAllBtn.addEventListener('click', () => {
-    clearTextarea(keyInput);
-    clearTextarea(plaintextInput);
-    clearTextarea(encryptedOutput);
-    clearTextarea(encryptedInput);
-    clearTextarea(decryptedOutput);
-    passwordInput.value = '';
-    Toast.show('All fields cleared', 'info');
+// Auto-select text on click for easier copying
+[keyInput, encryptedOutput, decryptedOutput].forEach(textarea => {
+    textarea.addEventListener('click', function() {
+        if (this.value && this.value.trim()) {
+            this.select();
+        }
+    });
 });
 
 // Input Event Listeners
 plaintextInput.addEventListener('input', updateCharCount);
 
-// Auto-copy on click for result fields
-[encryptedOutput, decryptedOutput].forEach(textarea => {
-    textarea.addEventListener('click', function() {
-        if (this.value.trim()) {
-            this.select();
-            copyToClipboard(this.value, 'Text');
+// Clear buttons if they exist
+document.querySelectorAll('.btn-danger').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const targetId = this.dataset.target;
+        const textarea = document.getElementById(targetId);
+        if (textarea) {
+            clearTextarea(textarea);
         }
     });
 });
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
     updateCharCount();
     
-    // Health check on load
-    fetch(API.health)
-        .then(response => response.json())
-        .then(data => {
-            console.log('API Health:', data);
-        })
-        .catch(err => {
-            console.warn('Health check failed:', err);
-        });
+    // Test toast on load
+    setTimeout(() => {
+        Toast.show('SecureCrypt ready for encryption', 'success', 2000);
+    }, 500);
     
-    Toast.show('SecureCrypt loaded successfully!', 'success', 2000);
+    // Add auto-clear on page refresh warning
+    window.addEventListener('beforeunload', () => {
+        if (keyInput.value || plaintextInput.value || encryptedInput.value) {
+            return 'You have unsaved data. Are you sure you want to leave?';
+        }
+    });
 });

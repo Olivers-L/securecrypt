@@ -1,7 +1,7 @@
 import os
 import base64
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 import secrets
 import string
@@ -55,15 +55,16 @@ class CryptoManager:
     
     @staticmethod
     def derive_key_from_password(password, salt=None):
-        """Derive key from password using PBKDF2"""
+        """Derive key from password using PBKDF2HMAC"""
         if salt is None:
             salt = os.urandom(SALT_SIZE)
         
-        kdf = PBKDF2(
+        # FIXED: Using PBKDF2HMAC
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=KEY_SIZE,
             salt=salt,
-            iterations=310000,  # OWASP recommended
+            iterations=310000,
         )
         key = kdf.derive(password.encode())
         return base64.urlsafe_b64encode(salt + key).decode()
