@@ -1,7 +1,6 @@
 # SecureCrypt
 
-![SecureCrypt Screenshot](https://via.placeholder.com/800x450/000000/FFFFFF?text=SecureCrypt+Black+Theme)
-*A sleek, black-themed AES-GCM encryption tool*
+-  A sleek, black-themed AES-GCM encryption tool
 
 ## Features
 
@@ -13,9 +12,8 @@
 
 ## Screenshots
 
-| Encryption Panel | Decryption Panel |
-|------------------|------------------|
-| ![Encrypt](https://via.placeholder.com/400x300/000000/FFFFFF?text=Encryption+Interface) | ![Decrypt](https://via.placeholder.com/400x300/000000/FFFFFF?text=Decryption+Interface) |
+ <img src="preview.png" width="700" alt="SecureCrypt Screenshot">
+</div>
 
 ## Stack
 
